@@ -6,7 +6,7 @@ These days, Nibbler more-or-less works with traditional engines like [Stockfish]
 
 For prebuilt binary releases, see the [Releases](https://github.com/rooklift/nibbler/releases) section. For help, the [Discord](https://discordapp.com/invite/pKujYxD) may be your best bet, or open an issue here.
 
-![Screenshot](https://user-images.githubusercontent.com/16438795/270297798-a432ea17-3601-4143-bddb-97420a0d6e6c.png)
+<img width="1294" height="884" alt="Screenshot" src="https://github.com/user-attachments/assets/a922354b-7167-4d93-830c-f55d12a1b05a" />
 
 ## Features
 
