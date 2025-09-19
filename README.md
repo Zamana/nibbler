@@ -1,6 +1,6 @@
 # Nibbler
 
-> This is for of the great project https://github.com/rooklift/nibbler by rooklift!
+> This is a fork of the great project https://github.com/rooklift/nibbler by rooklift!
 
 Nibbler is a real-time analysis GUI for [Leela Chess Zero](http://lczero.org/play/quickstart/) (Lc0), which runs Leela in the background and constantly displays opinions about the current position. You can also compel the engine to evaluate one or more specific moves. Nibbler is loosely inspired by [Lizzie](https://github.com/featurecat/lizzie) and [Sabaki](https://github.com/SabakiHQ/Sabaki).
 
