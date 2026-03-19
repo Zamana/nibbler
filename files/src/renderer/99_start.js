@@ -63,9 +63,8 @@ for (let y = 0; y < 8; y++) {
 		td1.height = td2.height = config.square_size;
 		tr1.appendChild(td1);
 		tr2.appendChild(td2);
-		td2.addEventListener("dragstart", (event) => {
-			hub.set_active_square(Point(x, y));
-			event.dataTransfer.setData("text", "overlay_" + S(x, y));
+		td2.addEventListener("mousedown", (event) => {
+			drag_handler.mousedown_event_on_board_td(td2, event);
 		});
 	}
 }
@@ -200,10 +199,6 @@ for (let s of ["mousemove", "mouseleave"]) {
 	});
 }
 
-window.addEventListener("mouseup", (event) => {
-	hub.grapher.dragging = false;
-});
-
 //
 
 window.addEventListener("wheel", (event) => {
@@ -261,21 +256,6 @@ window.addEventListener("keydown", (event) => {
 			}
 		}
 	}
-});
-
-// Setup drag-and-drop...
-
-window.addEventListener("dragenter", (event) => {		// Necessary to prevent brief flashes of "not allowed" icon.
-	event.preventDefault();
-});
-
-window.addEventListener("dragover", (event) => {		// Necessary to prevent always having the "not allowed" icon.
-	event.preventDefault();
-});
-
-window.addEventListener("drop", (event) => {
-	event.preventDefault();
-	hub.handle_drop(event);
 });
 
 window.addEventListener("resize", (event) => {

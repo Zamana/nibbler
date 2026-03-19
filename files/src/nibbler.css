@@ -74,6 +74,10 @@ body {
 	z-index: 3;
 }
 
+.dragging-piece {
+    cursor: grabbing !important;
+}
+
 #statusbox {
 	grid-area: c;
 	margin: 0 0 0 1em;
@@ -166,6 +170,22 @@ input[type=text]:focus {
 	overflow: hidden;
 	padding: 1em;
 	white-space: pre;
+}
+
+#config_item_input {
+	background: #101010;
+	border: 1px solid #444444;
+	box-sizing: border-box;
+	color: #dddddd;
+	font-family: inherit;
+	font-size: inherit;
+	max-width: 100%;
+	width: 100%;
+}
+
+#config_item_input:focus {
+	border-color: #444444;
+	outline: none;
 }
 
 td {
