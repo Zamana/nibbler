@@ -2,3 +2,5 @@
 scripts/dist
 scripts/electron_zipped
 scripts/update_my_installation.py
+src/dist/
+src/node_modules/
