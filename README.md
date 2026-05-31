@@ -46,6 +46,14 @@ Mac builds have been made by [twoplan](https://github.com/twoplan/Nibbler-for-ma
 
 Anyway, I guess that my releases are more update now. Thanks for your preference.
 
+## Mac install script
+
+Alternatively, MacOS users can run the following *one-liner* to assemble Nibbler locally. This (hopefully) removes any codesigning issues (Gatekeeper refusing to open unauthorized apps) by building Nibbler on-the-fly, though I can't test it myself:
+
+```bash
+curl -L https://raw.githubusercontent.com/rooklift/nibbler/master/files/scripts/install_mac.sh | bash
+```
+
 ## Advanced engine options
 
 Most people won't need them, but all of Leela's engine options can be set in two ways:

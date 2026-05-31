@@ -138,6 +138,7 @@ let hub_props = {
 		// Called right after this.tree.node is changed, meaning we are now drawing a different position.
 
 		this.escape();
+		drag_handler.cancel_drag();
 
 		this.hoverdraw_div = -1;
 		this.position_change_time = performance.now();
@@ -520,10 +521,8 @@ let hub_props = {
 
 				if (piece_to_draw === "") {
 					td.style["background-image"] = "none";
-					td.draggable = false;
 				} else {
 					td.style["background-image"] = images[piece_to_draw].string_for_bg_style;
-					td.draggable = true;
 				}
 			}
 		}
@@ -556,8 +555,6 @@ let hub_props = {
 				} else {
 					td.style["background-image"] = images[piece_to_draw].string_for_bg_style;
 				}
-
-				td.draggable = false;
 			}
 		}
 	},

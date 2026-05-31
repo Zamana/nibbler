@@ -1,6 +1,7 @@
 "use strict"
 
 // Drag improvements submitted by ObnubiladO in PR #291
+// Back in the day, something like this would be referenced in hub, but nowadays I leave such things in global space.
 
 const drag_handler = {
 
@@ -12,20 +13,16 @@ const drag_handler = {
 			return;
 		}
 
-		if (this.drag_state.floating && this.drag_state.floating.parentNode) {
+		if (this.drag_state.floating) {					// Drag is in progress...
+			hub.set_active_square(null);
 			this.drag_state.floating.remove();
+			this.drag_state.floating = null;			// Not strictly needed.
 		}
 
-		if (this.drag_state.from_element) {
-			this.drag_state.from_element.style.opacity = "";
-		}
-
-		if (this.drag_state.started) {
-			hub.set_active_square(null);				// Real drags must clear the click-selected source square; mere clicks must not.
-		}
+		this.drag_state.from_element.style.opacity = "";
 
 		this.drag_state = null;
-		boardfriends.classList.remove("dragging-piece");
+		document.body.classList.remove("dragging-piece");
 
 		if (config.click_spotlight) {
 			hub.draw_canvas_arrows();					// Might need to clear spotlight arrows.
@@ -34,14 +31,14 @@ const drag_handler = {
 
 	mousedown_event_on_board_td: function(overlay_td, event) {
 
-		if (event.button !== 0) {
+		if (event.button !== 0 || this.drag_state) {
 			return;
 		}
 
-		event.preventDefault();
+		event.preventDefault();							// I forget why?
 
 		let piece_style = overlay_td.style.backgroundImage;
-		if (!piece_style) {
+		if (!piece_style || piece_style === "none") {
 			return;
 		}
 
@@ -49,8 +46,9 @@ const drag_handler = {
 
 		this.drag_state = {
 			from_element: overlay_td,
-			piece_style,
-			rect,
+			from_square: overlay_td.id.slice(8),		// e.g. "e4" or similar.
+			piece_style: piece_style,
+			rect: rect,
 
 			startX: event.clientX,
 			startY: event.clientY,
@@ -58,8 +56,7 @@ const drag_handler = {
 			offsetX: rect.width / 2,
 			offsetY: rect.height / 2,
 
-			floating: null,								// NOT CREATED UNTIL THE DRAG REALLY STARTS:
-			started: false								// i.e. when this is set to true.
+			floating: null,								// The actual element - not created until we're sure we're really dragging.
 		};
 	},
 
@@ -69,11 +66,19 @@ const drag_handler = {
 			return;
 		}
 
+		// I dunno if this can happen but for safety...
+
+		if (!(event.buttons & 1)) {						// Bitmask: right-most bit means left click is down.
+			console.log("drag_handler: mousemove handler saw active drag state while button 1 up!")
+			this.cancel_drag();
+			return;
+		}
+
 		let dx = event.clientX - this.drag_state.startX;
 		let dy = event.clientY - this.drag_state.startY;
 		let dist = Math.hypot(dx, dy);
 
-		if (!this.drag_state.started) {
+		if (!this.drag_state.floating) {
 
 			// Treat small mouse movement as a normal click so boardfriends_click keeps its select/move behavior.
 
@@ -82,6 +87,11 @@ const drag_handler = {
 			}
 
 			// Drag starting now!
+
+			hub.set_active_square(Point(this.drag_state.from_square));
+			if (config.click_spotlight) {
+				hub.draw_canvas_arrows();
+			}
 
 			let floating = document.createElement("div");			// A custom ghost piece instead of HTML5 drag-and-drop.
 
@@ -96,18 +106,14 @@ const drag_handler = {
 
 			document.body.appendChild(floating);
 
+			document.body.classList.add("dragging-piece");			// This is just a css change.
 			this.drag_state.from_element.style.opacity = "0.35";
 
-			boardfriends.classList.add("dragging-piece");
-
 			this.drag_state.floating = floating;
-			this.drag_state.started = true;
 		}
 
-		if (this.drag_state.floating) {					// I don't think this can be false?
-			this.drag_state.floating.style.left = (event.clientX - this.drag_state.offsetX) + "px";
-			this.drag_state.floating.style.top = (event.clientY - this.drag_state.offsetY) + "px";
-		}
+		this.drag_state.floating.style.left = (event.clientX - this.drag_state.offsetX) + "px";
+		this.drag_state.floating.style.top = (event.clientY - this.drag_state.offsetY) + "px";
 	},
 
 	mouseup_handler: function(event) {
@@ -120,33 +126,33 @@ const drag_handler = {
 			return;
 		}
 
-		if (!this.drag_state.started) {					// Early cancel i.e. after a mere click.
-			this.cancel_drag();
+		if (event.button !== 0) {
 			return;
 		}
 
-		hub.set_active_square(null);
+		if (this.drag_state.floating) {					// Real drag was in progress...
 
-		let e = document.elementFromPoint(event.clientX, event.clientY);
-		let target_element = null;
+			let e = document.elementFromPoint(event.clientX, event.clientY);
+			let target_element = null;
 
-		while (e && e !== document.body) {
-			if (e.id && e.id.startsWith("overlay_")) {
-				target_element = e;
-				break;
+			while (e && e !== document.body) {
+				if (e.id && e.id.startsWith("overlay_")) {
+					target_element = e;
+					break;
+				}
+				e = e.parentElement;
 			}
-			e = e.parentElement;
+
+			if (target_element) {
+				let move = this.drag_state.from_square + target_element.id.slice(8);
+				let ok = hub.move(move);
+				if (!ok && config.click_spotlight) {	// The spotlight needs to be cleared.
+					hub.draw_canvas_arrows();
+				}
+			}
 		}
 
-		if (target_element) {
-			let move = this.drag_state.from_element.id.slice(8) + target_element.id.slice(8);
-			let ok = hub.move(move);
-			if (!ok && config.click_spotlight) {		// The spotlight needs to be cleared.
-				hub.draw_canvas_arrows();
-			}
-		}
-
-		this.cancel_drag();
+		this.cancel_drag();								// Final cleanup needed in all cases.
 	}
 };
 
